@@ -17,8 +17,8 @@
 #    Defines the architecture mirror URL to download from, defaults to
 #    'http://dl.4players.de/ts/releases/<%=version%>/teamspeak3-server_linux-<%=download_arch%>-<%=version%>.tar.gz'.
 #
-# === Variables
-#
+# [*license_file*]
+#    Source link to license file, optional. 
 #
 # === Examples
 #
@@ -29,6 +29,11 @@
 #      arch    => 'x86',
 #  }
 #
+#  class { teamspeak:
+#      version      => '3.0.11.3',
+#      license_file => 'puppet:///modules/roles/teamspeak/licensekey.dat'
+#  }
+#
 # === Authors
 #
 # William Roush <william.roush@roushtech.net>
@@ -37,10 +42,12 @@
 #
 # Copyright 2015 William Roush
 #
+
 class teamspeak (
   $version         = $teamspeak::params::version,
   $arch            = $teamspeak::params::download_arch,
   $mirror          = $teamspeak::params::mirror,
+  $license_file    = undef,
 ) inherits ::teamspeak::params  {
 
   package { 'wget':
@@ -59,26 +66,72 @@ class teamspeak (
     require    => Group['teamspeak'],
   }
   
+  $teamspeak_dirs = [
+    '/opt/teamspeak',
+    '/opt/teamspeak/downloads',
+  ]
+  
+  file { $teamspeak_dirs:
+    ensure  => directory,
+    owner   => 'teamspeak',
+    group   => 'teamspeak',
+    mode    => '750',
+    require => [
+      User['teamspeak'],
+      Group['teamspeak'],
+    ],
+  }
+  
   $parsed_mirror = inline_template($mirror)
-  $install_location = "/opt/teamspeak/teamspeak3-server_linux-${arch}"
   exec { 'download_teamspeak':
     command => "wget -q ${parsed_mirror}",
     path    => '/usr/bin',
-    cwd     => '/opt/teamspeak',
+    cwd     => '/opt/teamspeak/downloads',
     user    => 'teamspeak',
-    creates => "/opt/teamspeak/teamspeak3-server_linux-${arch}-${version}.tar.gz",
+    group   => 'teamspeak',
+    creates => "/opt/teamspeak/downloads/teamspeak3-server_linux-${arch}-${version}.tar.gz",
     require => [
+      File['/opt/teamspeak/downloads'],
       User['teamspeak'],
       Package['wget'],
     ],
   }
   
   exec { 'unpack_teamspeak':
-    command     => "tar -xzf /opt/teamspeak/teamspeak3-server_linux-${arch}-${version}.tar.gz -C /opt/teamspeak",
+    command     => "tar -xzf /opt/teamspeak/downloads/teamspeak3-server_linux-${arch}-${version}.tar.gz -C /opt/teamspeak/downloads",
     path        => '/bin',
     user        => 'teamspeak',
     refreshonly => true,
     subscribe   => Exec['download_teamspeak'],
+  }
+  
+  exec { 'move_teamspeak':
+    command     => "mv teamspeak3-server_linux-${arch}/* /opt/teamspeak",
+    cwd         => '/opt/teamspeak/downloads',
+    path        => '/bin',
+    user        => 'teamspeak',
+    refreshonly => true,
+    subscribe   => Exec['unpack_teamspeak'],
+  }
+  
+  file { 'delete_temp_teamspeak':
+    ensure    => absent,
+    path      => "/opt/teamspeak/downloads/teamspeak3-server_linux-${arch}",
+    subscribe => Exec['move_teamspeak'],
+    recurse   => true,
+    purge     => true,
+    force     => true,
+  }
+  
+  if $license_file != undef {
+    file { 'teamspeak_license':
+      ensure => present,
+      path   => '/opt/teamspeak/licensekey.dat',
+      source => $license_file,
+      owner  => 'teamspeak',
+      group  => 'teamspeak',
+      mode   => 660,
+    }
   }
   
   service { 'teamspeak':
@@ -86,11 +139,6 @@ class teamspeak (
     enable   => true,
   }
   
-  class { 'teamspeak::service::init':
-    install_location => $install_location 
-  }
-  
-  class { 'teamspeak::service::systemd':
-    install_location => $install_location 
-  }
+  include teamspeak::service::init
+  include teamspeak::service::systemd
 }

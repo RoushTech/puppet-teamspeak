@@ -1,6 +1,4 @@
-class teamspeak::service::init (
-  $install_location
-) {
+class teamspeak::service::init {
   file { 'teamspeak_init':
     ensure  => present,
     path    => '/etc/init.d/teamspeak',

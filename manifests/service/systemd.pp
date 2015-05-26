@@ -1,15 +1,4 @@
-class teamspeak::service::systemd (
-  $install_location
-) {
-  exec { 'check_systemd':
-    command => 'true',
-    onlyif  => 'test -e /bin/systemctl',
-    path    => [
-      '/bin',
-      '/usr/bin'
-    ],
-  }
-
+class teamspeak::service::systemd {
   file { 'teamspeak_systemd':
     ensure  => present,
     path    => '/etc/systemd/system/teamspeak.service',
@@ -17,7 +6,6 @@ class teamspeak::service::systemd (
     owner   => 'root',
     group   => 'root',
     mode    => 655,
-    require => Exec['check_systemd'],
   }
   
   # https://tickets.puppetlabs.com/browse/PUP-3483
