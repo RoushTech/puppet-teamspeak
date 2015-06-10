@@ -5,7 +5,7 @@
   "summary": "Teamspeak 3 installer and manager",
   "license": "MIT",
   "source": "https://github.com/orgs/RoushTech/puppet-teamspeak",
-  "project_page": "(https://github.com/orgs/RoushTech/puppet-teamspeak)",
+  "project_page": "https://github.com/orgs/RoushTech/puppet-teamspeak",
   "issues_url": null,
   "dependencies": [
   ]
