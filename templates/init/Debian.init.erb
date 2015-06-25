@@ -12,8 +12,8 @@
 set -e
 
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
-user=teamspeak
-dir=/opt/teamspeak
+user=<%= @user %>
+dir=<%= @home %>
 exec=./ts3server_startscript.sh
 
 test -x $DAEMON || exit 0

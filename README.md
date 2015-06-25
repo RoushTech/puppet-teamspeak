@@ -1,6 +1,6 @@
 # Teamspeak Module
 
-Manages a single teamspeak instance install. Installs on /opt/teamspeak.
+Manages a single teamspeak instance install. Installs by default on /opt/teamspeak.
 
 ## Quick Start
 
@@ -27,9 +27,24 @@ class { 'teamspeak':
 }
 ```
 
+### Install with all parameters set
+
+```puppet
+class { 'teamspeak':
+  version      => '3.0.11.3',
+  license_file => 'puppet:///modules/roles/teamspeak/licensekey.dat',
+  arch         => 'x86',  # x86 or amd64
+  user         => 'teamspeak',
+  group        => 'teamspeak',
+  init         => 'init', # or 'systemd'
+  home         => '/opt/teamspeak',
+  service      => 'teamspeak'
+}
+```
+
 ## Supported platforms
 
-Currently only Debian is tested, Redhat should work fine once you add it to the supported platforms, pull requests would be appreciated by people on different platforms.
+Currently Debian and RedHat family should work.
 
 x86 and AMD64 only.
 

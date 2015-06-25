@@ -1,7 +1,7 @@
 class teamspeak::service::systemd {
   file { 'teamspeak_systemd':
     ensure  => present,
-    path    => '/etc/systemd/system/teamspeak.service',
+    path    => "/etc/systemd/system/${service}.service",
     content => template($teamspeak::params::systemd_file),
     owner   => 'root',
     group   => 'root',
@@ -20,5 +20,5 @@ class teamspeak::service::systemd {
     subscribe   => File['teamspeak_systemd'],
   }
   
-  File['teamspeak_systemd'] -> Service['teamspeak']
+  File['teamspeak_systemd'] -> Service[$service]
 }
