@@ -5,7 +5,7 @@ Wants=network-online.target
 [Service]
 Type=forking
 PIDFile=<%= @home -%>/ts3server.pid
-User=<%= @user -%>
+User=<%= @user %>
 ExecStart=<%= @home -%>/ts3server_startscript.sh start
 ExecStop=<%= @home -%>/ts3server_startscript.sh stop
 ExecReload=<%= @home -%>/ts3server_startscript.sh restart
