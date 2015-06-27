@@ -59,11 +59,11 @@ class teamspeak (
     ensure => present,
   }
   
-  group { "$group":
+  group { $group:
     ensure => present,
   }
   
-  user { "$user":
+  user { $user:
     ensure     => present,
     managehome => true,
     home       => $home,
@@ -80,7 +80,7 @@ class teamspeak (
     ensure  => directory,
     owner   => $user,
     group   => $group,
-    mode    => '750',
+    mode    => '0750',
     require => [
       User[$user],
       Group[$group],
@@ -111,7 +111,7 @@ class teamspeak (
   }
   
   exec { 'move_teamspeak':
-    command     => "mv teamspeak3-server_linux-${arch}/* $home",
+    command     => "mv teamspeak3-server_linux-${arch}/* ${home}",
     cwd         => "${home}/downloads",
     path        => '/bin',
     user        => $user,
@@ -135,13 +135,13 @@ class teamspeak (
       source => $license_file,
       owner  => $user,
       group  => $group,
-      mode   => 660,
+      mode   => '0660',
     }
   }
   
   service { $service:
-    ensure   => running,
-    enable   => true,
+    ensure => running,
+    enable => true,
   }
   
 

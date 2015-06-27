@@ -1,11 +1,11 @@
-class teamspeak::service::systemd {
+class teamspeak::service::systemd inherits teamspeak {
   file { 'teamspeak_systemd':
     ensure  => present,
     path    => "/etc/systemd/system/${service}.service",
     content => template($teamspeak::params::systemd_file),
     owner   => 'root',
     group   => 'root',
-    mode    => 655,
+    mode    => '0655',
   }
   
   # https://tickets.puppetlabs.com/browse/PUP-3483
