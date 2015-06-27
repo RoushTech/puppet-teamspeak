@@ -4,11 +4,11 @@ Wants=network-online.target
 
 [Service]
 Type=forking
-PIDFile=/opt/teamspeak/ts3server.pid
-User=teamspeak
-ExecStart=/opt/teamspeak/ts3server_startscript.sh start
-ExecStop=/opt/teamspeak/ts3server_startscript.sh stop
-ExecReload=/opt/teamspeak/ts3server_startscript.sh restart
+PIDFile=<%= @home -%>/ts3server.pid
+User=<%= @user -%>
+ExecStart=<%= @home -%>/ts3server_startscript.sh start
+ExecStop=<%= @home -%>/ts3server_startscript.sh stop
+ExecReload=<%= @home -%>/ts3server_startscript.sh restart
 Restart=always
 RestartSec=15
 

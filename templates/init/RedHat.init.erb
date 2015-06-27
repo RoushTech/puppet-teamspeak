@@ -1,0 +1,28 @@
+#!/bin/sh
+# chkconfig: 2345 99 10
+# description: Starts or Stops TeamSpeak 3 Server
+#
+# should work on EL6 Systems (and maybe others)
+#
+USER="<%= @user -%>"
+TS3='<%= @home -%>'
+STARTSCRIPT="$TS3/ts3server_startscript.sh"
+
+cd $TS3
+
+case "$1" in
+        'start')
+                su $USER -c "$STARTSCRIPT start"
+        ;;
+        'stop')
+                su $USER -c "$STARTSCRIPT stop"
+        ;;
+        'restart')
+                su $USER -c "$STARTSCRIPT restart"
+        ;;
+        'status')
+                su $USER -c "$STARTSCRIPT status"
+        ;;
+        *)
+        echo "Usage $0 start|stop|restart|status"
+esac

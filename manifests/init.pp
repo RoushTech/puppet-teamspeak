@@ -44,41 +44,46 @@
 #
 
 class teamspeak (
-  $version         = $teamspeak::params::version,
-  $arch            = $teamspeak::params::download_arch,
-  $mirror          = $teamspeak::params::mirror,
-  $license_file    = undef,
-) inherits ::teamspeak::params  {
+    $version         = $teamspeak::params::version,
+    $arch            = $teamspeak::params::download_arch,
+    $mirror          = $teamspeak::params::mirror,
+    $license_file    = undef,
+    $user            = 'teamspeak',
+    $group           = 'teamspeak',
+    $init            = 'init', # or systemd
+    $home            = '/opt/teamspeak',
+    $service         = 'teamspeak',
+    ) inherits ::teamspeak::params  {
 
   package { 'wget':
     ensure => present,
   }
   
-  group { 'teamspeak':
+  group { "$group":
     ensure => present,
   }
   
-  user { 'teamspeak':
+  user { "$user":
     ensure     => present,
     managehome => true,
-    home       => '/opt/teamspeak',
-    groups     => 'teamspeak',
-    require    => Group['teamspeak'],
+    home       => $home,
+    groups     => $group,
+    require    => Group[$group],
   }
   
   $teamspeak_dirs = [
-    '/opt/teamspeak',
-    '/opt/teamspeak/downloads',
+    $home,
+    "${home}/downloads",
   ]
   
   file { $teamspeak_dirs:
     ensure  => directory,
-    owner   => 'teamspeak',
-    group   => 'teamspeak',
+    owner   => $user,
+    group   => $group,
     mode    => '750',
     require => [
-      User['teamspeak'],
-      Group['teamspeak'],
+      User[$user],
+      Group[$group],
     ],
   }
   
@@ -86,37 +91,37 @@ class teamspeak (
   exec { 'download_teamspeak':
     command => "wget -q ${parsed_mirror}",
     path    => '/usr/bin',
-    cwd     => '/opt/teamspeak/downloads',
-    user    => 'teamspeak',
-    group   => 'teamspeak',
-    creates => "/opt/teamspeak/downloads/teamspeak3-server_linux-${arch}-${version}.tar.gz",
+    cwd     => "${home}/downloads",
+    user    => $user,
+    group   => $group,
+    creates => "${home}/downloads/teamspeak3-server_linux-${arch}-${version}.tar.gz",
     require => [
-      File['/opt/teamspeak/downloads'],
-      User['teamspeak'],
+      File["${home}/downloads"],
+      User[$user],
       Package['wget'],
     ],
   }
   
   exec { 'unpack_teamspeak':
-    command     => "tar -xzf /opt/teamspeak/downloads/teamspeak3-server_linux-${arch}-${version}.tar.gz -C /opt/teamspeak/downloads",
+    command     => "tar -xzf ${home}/downloads/teamspeak3-server_linux-${arch}-${version}.tar.gz -C /opt/teamspeak/downloads",
     path        => '/bin',
-    user        => 'teamspeak',
+    user        => $user,
     refreshonly => true,
     subscribe   => Exec['download_teamspeak'],
   }
   
   exec { 'move_teamspeak':
-    command     => "mv teamspeak3-server_linux-${arch}/* /opt/teamspeak",
-    cwd         => '/opt/teamspeak/downloads',
+    command     => "mv teamspeak3-server_linux-${arch}/* $home",
+    cwd         => "${home}/downloads",
     path        => '/bin',
-    user        => 'teamspeak',
+    user        => $user,
     refreshonly => true,
     subscribe   => Exec['unpack_teamspeak'],
   }
   
   file { 'delete_temp_teamspeak':
     ensure    => absent,
-    path      => "/opt/teamspeak/downloads/teamspeak3-server_linux-${arch}",
+    path      => "${home}/downloads/teamspeak3-server_linux-${arch}",
     subscribe => Exec['move_teamspeak'],
     recurse   => true,
     purge     => true,
@@ -126,19 +131,27 @@ class teamspeak (
   if $license_file != undef {
     file { 'teamspeak_license':
       ensure => present,
-      path   => '/opt/teamspeak/licensekey.dat',
+      path   => "${home}/licensekey.dat",
       source => $license_file,
-      owner  => 'teamspeak',
-      group  => 'teamspeak',
+      owner  => $user,
+      group  => $group,
       mode   => 660,
     }
   }
   
-  service { 'teamspeak':
+  service { $service:
     ensure   => running,
     enable   => true,
   }
   
-  include teamspeak::service::init
-  include teamspeak::service::systemd
+
+  case $init {
+    'init': {
+      include teamspeak::service::init
+    }
+    default: {
+      include teamspeak::service::systemd
+    }
+  }
+
 }

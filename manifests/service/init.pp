@@ -1,12 +1,12 @@
-class teamspeak::service::init {
+class teamspeak::service::init inherits teamspeak {
   file { 'teamspeak_init':
     ensure  => present,
-    path    => '/etc/init.d/teamspeak',
+    path    => "/etc/init.d/${service}",
     content => template($teamspeak::params::init_file),
     owner   => 'root',
     group   => 'root',
     mode    => 755,
   }
   
-  File['teamspeak_init'] -> Service['teamspeak']
+  File['teamspeak_init'] -> Service[$service]
 }
