@@ -1,11 +1,11 @@
 {
-  "name": "roushtech-teamspeak",
-  "version": "1.0.0",
+  "name": "StrangeWill-teamspeak",
+  "version": "1.0.1",
   "author": "William Roush",
   "summary": "Teamspeak 3 installer and manager",
   "license": "MIT",
   "source": "https://github.com/orgs/RoushTech/puppet-teamspeak",
-  "project_page": "https://github.com/orgs/RoushTech/puppet-teamspeak",
+  "project_page": "https://github.com/RoushTech/puppet-teamspeak",
   "issues_url": "https://github.com/RoushTech/puppet-teamspeak/issues",
   "dependencies": [
   ],
