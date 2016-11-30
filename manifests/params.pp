@@ -3,7 +3,7 @@ class teamspeak::params {
     $systemd_file = 'teamspeak/systemd/teamspeak.erb'
     $version      = '3.0.11.3'
     $arch         = $::architecture
-    $mirror       = 'http://dl.4players.de/ts/releases/<%=version%>/teamspeak3-server_linux-<%=download_arch%>-<%=version%>.tar.gz'
+    $mirror       = 'http://dl.4players.de/ts/releases/<%=@version%>/teamspeak3-server_linux-<%=@download_arch%>-<%=@version%>.tar.gz'
   
     case $::osfamily {
         'Debian': {
