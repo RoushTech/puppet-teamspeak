@@ -93,7 +93,7 @@ class teamspeak (
     cwd     => "${home}/downloads",
     user    => $user,
     group   => $group,
-    creates => "${home}/downloads/teamspeak3-server_linux_${arch}-${version}.tar.gz",
+    creates => "${home}/downloads/teamspeak3-server_linux_${arch}-${version}.tar.bz2",
     require => [
       File["${home}/downloads"],
       User[$user],
@@ -142,7 +142,6 @@ class teamspeak (
     ensure => running,
     enable => true,
   }
-
 
   case $init {
     'init': {
