@@ -55,10 +55,9 @@ class teamspeak (
     $service         = 'teamspeak',
     ) inherits ::teamspeak::params  {
 
-  ensure_resources('package', { 'wget' => {
-    ensure => present,
-  }})
-
+  $packages = [ 'wget', 'bzip2' ]
+  ensure_resource('package', $packages, { ensure => present })
+  
   group { $group:
     ensure => present,
   }
@@ -87,7 +86,7 @@ class teamspeak (
     ],
   }
 
-  $parsed_mirror = inline_epp($mirror)
+  $parsed_mirror = inline_template($mirror)
   exec { 'download_teamspeak':
     command => "wget -q ${parsed_mirror}",
     path    => '/usr/bin',
@@ -100,7 +99,7 @@ class teamspeak (
       User[$user],
       Package['wget'],
     ],
-  }
+  } 
 
   exec { 'unpack_teamspeak':
     command     => "tar -xf ${home}/downloads/teamspeak3-server_linux_${arch}-${version}.tar.bz2 -C /opt/teamspeak/downloads",
@@ -110,8 +109,8 @@ class teamspeak (
     subscribe   => Exec['download_teamspeak'],
   }
 
-  exec { 'move_teamspeak':
-    command     => "mv teamspeak3-server_linux_${arch}/* ${home}",
+  exec { 'copy_teamspeak':
+    command     => "cp -R teamspeak3-server_linux_${arch}/* ${home}",
     cwd         => "${home}/downloads",
     path        => '/bin',
     user        => $user,
@@ -122,7 +121,7 @@ class teamspeak (
   file { 'delete_temp_teamspeak':
     ensure    => absent,
     path      => "${home}/downloads/teamspeak3-server_linux_${arch}",
-    subscribe => Exec['move_teamspeak'],
+    subscribe => Exec['copy_teamspeak'],
     recurse   => true,
     purge     => true,
     force     => true,
