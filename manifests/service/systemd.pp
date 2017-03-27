@@ -12,7 +12,7 @@ class teamspeak::service::systemd inherits teamspeak {
   exec { 'teamspeak_systemd_reload':
     refreshonly => true,
     command     => 'systemctl daemon-reload',
-    onlyif  => 'test -e /bin/systemctl',
+    onlyif      => 'test -e /bin/systemctl',
     path        => [
       '/bin',
       '/usr/bin'
