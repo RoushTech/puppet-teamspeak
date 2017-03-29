@@ -20,14 +20,43 @@ class teamspeak::params {
                 $download_arch = 'x86'
             }
         }
+        'Suse': {
+            if $arch == 'x86_64' {
+                $download_arch = 'amd64'
+            } else {
+                $download_arch = 'x86'
+            }
+        }
         default: {
         }
     }
+
+if ($::osfamily == 'Debian') and ($::operatingsystemmajrelease >= '8') {
+    $init = 'systemd'
+}
+if ($::osfamily == 'Debian') and ($::operatingsystemmajrelease < '8') {
+    $init = 'init'
+}
+if ($::osfamily == 'RedHat') and ($::operatingsystemmajrelease >= '7') {
+    $init = 'systemd'
+}
+if ($::osfamily == 'RedHat') and ($::operatingsystemmajrelease < '7') {
+    $init = 'init'
+}
+if ($::osfamily == 'Suse') and ($::operatingsystemmajrelease >= '42') {
+    $init = 'systemd'
+}
+if ($::osfamily == 'Suse') and ($::operatingsystemmajrelease < '42') {
+    $init = 'init'
+}
+
+case 
+
     if !($arch in ['i386', 'amd64', 'x86_64']) {
         fail("${arch} is not currently supported!")
     }
 
-    if !($::osfamily in ['Debian', 'RedHat']) {
+    if !($::osfamily in ['Debian', 'RedHat', 'Suse']) {
         fail("${::osfamily} is not currently supported!")
     }
 

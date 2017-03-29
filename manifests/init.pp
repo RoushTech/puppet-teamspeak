@@ -50,7 +50,7 @@ class teamspeak (
     $license_file    = undef,
     $user            = 'teamspeak',
     $group           = 'teamspeak',
-    $init            = 'init', # or systemd
+    $init            = $teamspeak::params::init,
     $home            = '/opt/teamspeak',
     $service         = 'teamspeak',
     ) inherits ::teamspeak::params  {
