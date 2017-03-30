@@ -50,8 +50,6 @@ if ($::osfamily == 'Suse') and ($::operatingsystemmajrelease < '42') {
     $init = 'init'
 }
 
-case 
-
     if !($arch in ['i386', 'amd64', 'x86_64']) {
         fail("${arch} is not currently supported!")
     }
@@ -59,5 +57,4 @@ case
     if !($::osfamily in ['Debian', 'RedHat', 'Suse']) {
         fail("${::osfamily} is not currently supported!")
     }
-
 }
