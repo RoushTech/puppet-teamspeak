@@ -87,7 +87,6 @@ class teamspeak (
   }
 
   $parsed_mirror = inline_template($mirror)
-include '::archive' # NOTE: optional for posix platforms
 
 archive { "${home}/downloads/teamspeak3-server_linux_${arch}-${version}.tar.bz2":
   ensure          => present,
@@ -106,7 +105,6 @@ archive { "${home}/downloads/teamspeak3-server_linux_${arch}-${version}.tar.bz2"
       User[$user],
       ],
 }
-
 
   if $license_file != undef {
     file { 'teamspeak_license':
