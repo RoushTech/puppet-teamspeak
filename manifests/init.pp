@@ -50,7 +50,7 @@ class teamspeak (
     $license_file    = undef,
     $user            = 'teamspeak',
     $group           = 'teamspeak',
-    $init            = 'init', # or systemd
+    $init            = $teamspeak::params::init,
     $home            = '/opt/teamspeak',
     $service         = 'teamspeak',
     ) inherits ::teamspeak::params  {
@@ -87,45 +87,24 @@ class teamspeak (
   }
 
   $parsed_mirror = inline_template($mirror)
-  exec { 'download_teamspeak':
-    command => "wget -q ${parsed_mirror}",
-    path    => '/usr/bin',
-    cwd     => "${home}/downloads",
-    user    => $user,
-    group   => $group,
-    creates => "${home}/downloads/teamspeak3-server_linux_${arch}-${version}.tar.bz2",
-    require => [
+
+archive { "${home}/downloads/teamspeak3-server_linux_${arch}-${version}.tar.bz2":
+  ensure          => present,
+  extract         => true,
+  extract_path    => $home,
+  extract_command => "tar -xf %s -C /opt/teamspeak/ --strip 1",
+  source          => $parsed_mirror,
+  checksum        => '19ccd8db5427758d972a864b70d4a1263ebb9628fcc42c3de75ba87de105d179',
+  checksum_type   => 'sha256',
+  creates         => '/opt/teamspeak/ts3server',
+  cleanup         => false,
+  user            => $user,
+  group           => $group,
+  require         => [
       File["${home}/downloads"],
       User[$user],
-      Package['wget'],
-    ],
-  } 
-
-  exec { 'unpack_teamspeak':
-    command     => "tar -xf ${home}/downloads/teamspeak3-server_linux_${arch}-${version}.tar.bz2 -C /opt/teamspeak/downloads",
-    path        => '/bin',
-    user        => $user,
-    refreshonly => true,
-    subscribe   => Exec['download_teamspeak'],
-  }
-
-  exec { 'copy_teamspeak':
-    command     => "cp -R teamspeak3-server_linux_${arch}/* ${home}",
-    cwd         => "${home}/downloads",
-    path        => '/bin',
-    user        => $user,
-    refreshonly => true,
-    subscribe   => Exec['unpack_teamspeak'],
-  }
-
-  file { 'delete_temp_teamspeak':
-    ensure    => absent,
-    path      => "${home}/downloads/teamspeak3-server_linux_${arch}",
-    subscribe => Exec['copy_teamspeak'],
-    recurse   => true,
-    purge     => true,
-    force     => true,
-  }
+      ],
+}
 
   if $license_file != undef {
     file { 'teamspeak_license':

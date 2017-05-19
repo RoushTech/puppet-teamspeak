@@ -9,7 +9,7 @@ User=<%= @user %>
 ExecStart=<%= @home -%>/ts3server_startscript.sh start
 ExecStop=<%= @home -%>/ts3server_startscript.sh stop
 ExecReload=<%= @home -%>/ts3server_startscript.sh restart
-Restart=always
+Restart=on-success
 RestartSec=15
 
 [Install]
